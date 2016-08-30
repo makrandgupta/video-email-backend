@@ -6,12 +6,11 @@ var Email = require(appRoot + '/models/email');
 
 module.exports = {
     saveEmailData: function (htmlData) {
-        var email = new Email();      // create a new instance of the Bear model
-        email.htmlData = htmlData.html();  // set the bears name (comes from the request)
+        var email = new Email();      
+        email.htmlData = htmlData.html();  
         var token = randtoken.generate(16);
         console.log(token);
         email.token = token;
-        // save the bear and check for errors
         email.save(function (err) {
             if (err)
                 console.log(err);
