@@ -56,7 +56,7 @@ app.use(function (req, res, next) {
 require('./router')(app);
 
 //database
-mongoose.connect('mongodb://localhost:27017/VideoEmail'); // connect to our database
+mongoose.connect(process.env.MLAB_URI); // connect to our database
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
