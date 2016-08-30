@@ -25,9 +25,8 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/storeAuthCode', function (req, res) {
-    console.log(req.body.code);
     console.log(req.query);
-    oauth2Client.getToken(req.body.code, function(err, tokens) {
+    oauth2Client.getToken(req.query.code, function(err, tokens) {
       // Now tokens contains an access_token and an optional refresh_token. Save them.
       if(!err) {
         oauth2Client.setCredentials(tokens);
