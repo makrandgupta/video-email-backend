@@ -56,7 +56,12 @@ app.use(function (req, res, next) {
 require('./router')(app);
 
 //database
-mongoose.connect(process.env.MONGODB_URI); // connect to our database
+mongoose.connect(process.env.MONGODB_URI, function (err) {
+  if(err)
+    console.log(err);
+
+  console.log("Database connected!");
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
