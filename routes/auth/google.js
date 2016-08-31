@@ -31,14 +31,13 @@ router.post('/storeAuthCode', function (req, res) {
       if(!err) {
         oauth2Client.setCredentials(tokens);
 
-        console.log(tokens);
         var params = {
             'userId' : 'me'
         };
 
         gmail.users.getProfile(params, function (err, profile) {
             if(err)
-                res.send(err);
+                res.status(err.code).send(err);
 
             var user = new User();      
             user.google.access_token = tokens.access_token;  
@@ -62,11 +61,29 @@ router.post('/storeAuthCode', function (req, res) {
 });
 
 router.get('/getAccessToken/:email', function (req, res) {
-    console.log("getting token for: ", req.params.email);
-    User.findOne({'google.email':req.params.email}, function(err, userData) {
+    User.findOne({'google.email':req.params.email}, 'google', function(err, userData) {
         if (err)
-            res.send(err);
-        res.send(userData);
+          res.send(err);
+
+        if((userData.google.expiry_date - Date.now()) < 0){
+          res.json({access_token: userData.google.access_token});
+        } else {
+          oauth2Client.setCredentials({
+            refresh_token: userData.google.refresh_token
+          });
+          oauth2Client.refreshAccessToken(function(err, tokens) {
+            var user = new User();
+            user.google.access_token = tokens.access_token;  
+            user.google.expiry_date = tokens.expiry_date;
+            user.save(function (err) {
+                if (err)
+                    console.log(err);
+                console.log('access_token for ' + userData.google.email + ' updated!');
+                res.json({access_token: userData.google.access_token});
+            });
+          });
+        }
+
     });
 })
 
