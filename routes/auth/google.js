@@ -37,18 +37,38 @@ router.post('/storeAuthCode', function (req, res) {
 
         gmail.users.getProfile(params, function (err, profile) {
             if(err)
-                res.status(err.code).send(err);
+              res.status(err.code).send(err);
 
-            var user = new User();      
-            user.google.access_token = tokens.access_token;  
-            user.google.refresh_token = tokens.refresh_token;
-            user.google.expiry_date = tokens.expiry_date;
-            user.google.email = profile.emailAddress;
-            user.save(function (err) {
-                if (err)
-                    console.log(err);
-                console.log('UserData for ' + profile.emailAddress + ' saved!');
-                res.json({email: profile.emailAddress});
+            User.findOne({'google.email':profile.emailAddress}, function(err, userData) {
+              if (err)
+                res.send(err);
+              if(userData) { 
+                console.log('Email '+ profile.emailAddress +' exists in database!');
+                userData.google.access_token = tokens.access_token;  
+                userData.google.refresh_token = tokens.refresh_token;
+                userData.google.expiry_date = tokens.expiry_date;
+                userData.save(function (err) {
+                  if(err)
+                    res.send(err);
+
+                    console.log('Tokens for ' + profile.emailAddress + ' updated!');
+                    res.json({email: profile.emailAddress});
+
+                })
+              } else {
+                var user = new User();
+                console.log('New User!');   
+                user.google.access_token = tokens.access_token;  
+                user.google.refresh_token = tokens.refresh_token;
+                user.google.expiry_date = tokens.expiry_date;
+                user.google.email = profile.emailAddress;
+                user.save(function (err) {
+                    if (err)
+                      console.log(err);
+                    console.log('UserData for ' + profile.emailAddress + ' saved!');
+                    res.json({email: profile.emailAddress});
+                });
+              }
             });
             
         });
@@ -62,26 +82,20 @@ router.post('/storeAuthCode', function (req, res) {
 
 router.get('/getAccessToken/:email', function (req, res) {
     User.findOne({'google.email':req.params.email}, 'google', function(err, userData) {
-        if (err)
+        if(err)
           res.send(err);
 
-        if((userData.google.expiry_date - Date.now()) < 0){
-          res.json({access_token: userData.google.access_token});
+        if(userData) { 
+          oauth2Client.setCredentials(userData.google);
+          oauth2Client.getAccessToken(function (err, token, response) {
+            if(err)
+              res.send(err);
+
+            console.log(response);
+            res.json({access_token: token});
+          });
         } else {
-          oauth2Client.setCredentials({
-            refresh_token: userData.google.refresh_token
-          });
-          oauth2Client.refreshAccessToken(function(err, tokens) {
-            var user = new User();
-            user.google.access_token = tokens.access_token;  
-            user.google.expiry_date = tokens.expiry_date;
-            user.save(function (err) {
-                if (err)
-                    console.log(err);
-                console.log('access_token for ' + userData.google.email + ' updated!');
-                res.json({access_token: userData.google.access_token});
-            });
-          });
+          res.status(404).json({error: 'Email Address not found'});
         }
 
     });
