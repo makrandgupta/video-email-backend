@@ -86,42 +86,6 @@ var gmail = function (from, to, subject, message, callback){
         }
     });
     
-
-    // var html_code = generate.html(videoID, message);
-    // // login
-    // var transporter = nodemailer.createTransport({
-    //     service: 'gmail',
-    //     auth: {
-    //         xoauth2: xoauth2.createXOAuth2Generator({
-    //             user: from,
-    //             clientId: '333014013976-c9q2j4vekuss03ek53je0fujciokieps.apps.googleusercontent.com',
-    //             clientSecret: '22VnkJwH0W7f9SIJyWUTIDAt',
-    //             refreshToken: token
-    //             // accessToken: 'ya29.Ci8nAx6x-0ek3jjOwRbToVJAoZmf54z_ekzgMXBc1_B6yHhM291mzoD_bNmKnQXdCw'
-    //         })
-    //     }
-    // });
-    // // setup e-mail data with unicode symbols
-    // var mailOptions = {
-    //     from: {
-    //         name: from,
-    //         address: from
-    //     }, // sender address
-    //     to: to, // list of receivers
-    //     subject: subject, // Subject line
-    //     html: html_code  // plaintext body
-    //     // html: message'<b></b>' // html body
-    // };
-
-    // // send mail with defined transport object
-    // transporter.sendMail(mailOptions, function(error, info){
-    //     if(error){
-    //         return console.log(error);
-    //     }
-    //     console.log('Message sent: ' + info.response);
-    // });
-
-
 };
 
 var outlook = function (id, from, email, subject, message, token){
