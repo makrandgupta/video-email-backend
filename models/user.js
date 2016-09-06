@@ -3,6 +3,7 @@ var Schema = mongoose.Schema;
 
 var userSchema = new Schema({
     google: {
+    	display_name: String,
         access_token: String,
         refresh_token: String,
         expiry_date: String,
